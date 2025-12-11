@@ -181,7 +181,7 @@ const main = async () => {
           return res.end(JSON.stringify({ status: 'empty', data: {} }));
         }
       } catch (error) {
-        console.error('❌ Error leyendo JSON:', error);
+        // console.error('❌ Error leyendo JSON:', error);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ status: 'error', message: 'Error interno' }));
       }
