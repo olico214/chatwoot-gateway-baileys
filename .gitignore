@@ -1,0 +1,83 @@
+# # Creado por Gemini con las mejores prácticas de seguridad y limpieza.
+
+# ===================================================================
+# ## ARCHIVOS DE ENTORNO Y SECRETOS (LO MÁS IMPORTANTE) ##
+# Nunca subas archivos que contengan contraseñas, API keys, o credenciales.
+# ===================================================================
+.env
+.env.local
+.env.*
+!.env.example
+
+# Archivos de configuración con secretos
+credentials.json
+secrets.yml
+config.local.js
+
+# Certificados o llaves privadas
+*.pem
+*.key
+/bot.*
+
+# ===================================================================
+# ## DEPENDENCIAS Y PAQUETES ##
+# No subas las carpetas de paquetes, ya que se pueden reinstalar.
+# ===================================================================
+/node_modules
+/bower_components
+/vendor
+/platforms
+/plugins
+/bot_sessions*
+/core.class.log*
+/queue.class.log*
+/bot_sessions*
+
+
+# ===================================================================
+# ## ARCHIVOS DE SISTEMA OPERATIVO Y EDITORES ##
+# Basura generada por Windows, macOS, Linux y editores de código.
+# ===================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editores de Código
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+
+# ===================================================================
+# ## ARCHIVOS DE COMPILACIÓN Y LOGS ##
+# Archivos generados automáticamente durante la compilación o ejecución.
+# ===================================================================
+/build
+/dist
+/out
+/public
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# ===================================================================
+# ## ARCHIVOS TEMPORALES Y DE CACHÉ ##
+# ===================================================================
+.npm
+.cache
+.parcel-cache

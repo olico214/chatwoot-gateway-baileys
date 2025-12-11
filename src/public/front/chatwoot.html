@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Chatwoot | BuilderBot</title>
+    <style>
+        /* --- ESTILOS GENERALES (RESET & FUENTES) --- */
+        :root {
+            --primary-color: #2563EB;
+            /* Azul moderno */
+            --primary-hover: #1D4ED8;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --input-bg: #F9FAFB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- TARJETA PRINCIPAL --- */
+        .card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            transition: transform 0.2s ease;
+        }
+
+        .card-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            color: var(--text-main);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- FORMULARIO --- */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* --- BOTÓN --- */
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #9CA3AF;
+            cursor: not-allowed;
+        }
+
+        /* --- STATUS DE RESPUESTA --- */
+        #statusMessage {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .success {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+
+        .error {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Conexión Chatwoot</h2>
+            <p>Ingresa las credenciales de tu instancia para conectar el Bot.</p>
+        </div>
+
+        <form id="chatwootForm">
+
+            <div class="form-group">
+                <label for="urlInstance">URL Instance</label>
+                <input type="url" id="urlInstance" name="urlInstance" placeholder="Ej: https://app.chatwoot.com"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="Ej: 1234567890" required>
+            </div>
+
+            <div class="form-group">
+                <label for="accountId">Account ID</label>
+                <input type="number" id="accountId" name="accountId" placeholder="Ej: 1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="inboxId">Inbox ID</label>
+                <input type="number" id="inboxId" name="inboxId" placeholder="Ej: 5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="accessToken">Account Access Token</label>
+                <input type="password" id="accessToken" name="accessToken" placeholder="Pegar token aquí..." required
+                    autocomplete="off">
+            </div>
+
+            <button type="submit" id="submitBtn">Conectar & Guardar</button>
+        </form>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('chatwootForm');
+        const statusDiv = document.getElementById('statusMessage');
+        const btn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 1. UI Loading state
+            btn.disabled = true;
+            btn.textContent = 'Procesando...';
+            statusDiv.style.display = 'none';
+
+            // 2. Obtener datos
+            const formData = {
+                url: document.getElementById('urlInstance').value,
+                idAcount: document.getElementById('accountId').value,
+                imboxID: document.getElementById('inboxId').value,
+                apiToken: document.getElementById('accessToken').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                // 3. Enviar al Bot (Endpoint que deberás crear en app.js)
+                const response = await fetch('/v1/save-chatwoot-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                // 4. Feedback Visual
+                statusDiv.textContent = '✅ Configuración guardada correctamente.';
+                statusDiv.className = 'success';
+                statusDiv.style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = '❌ Error al conectar con el servidor.';
+                statusDiv.className = 'error';
+                statusDiv.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Conectar & Guardar';
+            }
+        });
+
+
+        const readData = async () => {
+            const res = await fetch('/v1/get-chatwoot-config', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            const data = await res.json()
+            document.getElementById('urlInstance').value = data.data.url || '';
+            document.getElementById('accountId').value = data.data.idAcount || '';
+            document.getElementById('inboxId').value = data.data.imboxID || '';
+            document.getElementById('accessToken').value = data.data.apiToken || '';
+            document.getElementById('phone').value = data.data.phone || '';
+        }
+        readData()
+    </script>
+</body>
+
+</html>
