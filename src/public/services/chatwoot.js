@@ -22,11 +22,18 @@ const getConfig = () => {
 
 // --- HELPERS ---
 const deleteFile = (path) => {
-    try {
-        if (path && fs.existsSync(path)) fs.unlinkSync(path)
-    } catch (e) {
-        console.error("Error borrando archivo temp:", e)
-    }
+    // Esperar 10 segundos antes de ejecutar el borrado
+    setTimeout(() => {
+        try {
+            if (path && fs.existsSync(path)) {
+                fs.unlinkSync(path)
+                // Opcional: un log para saber que sucedió
+                // console.log(`Archivo temporal eliminado: ${path}`) 
+            }
+        } catch (e) {
+            console.error("Error borrando archivo temp:", e)
+        }
+    }, 10000)
 }
 
 // --- API ---

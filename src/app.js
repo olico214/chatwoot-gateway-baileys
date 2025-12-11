@@ -78,6 +78,8 @@ const flowLocation = addKeyword(EVENTS.LOCATION) // <--- Corregido a EVENTS.LOCA
   })
 
 
+
+
 const main = async () => {
   // Aseguramos que la carpeta assets exista
   if (!fs.existsSync('./assets')) fs.mkdirSync('./assets');
@@ -97,36 +99,36 @@ const main = async () => {
   })
 
   // --- RUTAS DEL SERVIDOR ---
-
   adapterProvider.server.post(
     '/v1/messages',
     handleCtx(async (bot, req, res) => {
-      const data = await req.body
-      const content = data.content
+      // 1. Obtenemos datos directamente. El await en req.body no suele ser necesario si usas express/body-parser
+      const body = req.body;
+      const { content, conversation } = body;
 
-      let urlMedia = false;
+      // 2. Si es nota privada, terminamos aquí
+      if (body?.private) {
+        return res.end('ignored: private message');
+      }
+
+      // 3. Extracción segura de Media (en una sola línea)
+      // Busca attachments, si no hay, asigna null.
+      const urlMedia = conversation?.messages?.[0]?.attachments?.[0]?.data_url ?? null;
+
+      // 4. Limpieza robusta del teléfono (quita el '+' del inicio)
+      const phone = conversation?.meta?.sender?.phone_number?.replace('+', '');
+
       try {
-        urlMedia = data?.conversation?.messages[0].attachments[0].data_url;
-      } catch {
-        urlMedia = false;
+        // 5. Enviar mensaje
+        await bot.sendMessage(phone, content, { media: urlMedia });
+        return res.end('sent');
+      } catch (error) {
+        console.error('Error enviando mensaje:', error);
+        // Respondemos success para que Chatwoot no reintente en bucle si fue error de validación
+        return res.end('error sending message');
       }
-
-      // console.log(urlMedia)
-      // // return
-      if (data?.private) {
-        res.send('no sended')
-        return
-      }
-      const phone = data.conversation.meta.sender.phone_number
-      const number = phone.split("+")
-
-
-
-      await bot.sendMessage(number[1], content, { media: urlMedia ?? null })
-      return res.end('sended')
     })
-  )
-
+  );
   adapterProvider.server.get(
     '/v1/chatwoot',
     handleCtx(async (bot, req, res) => {
