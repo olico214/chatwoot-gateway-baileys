@@ -70,6 +70,7 @@ const createContact = async (phone) => {
                 phone_number: `+${phone}`
             })
         })
+        console.log(res)
         const json = await res.json()
         return json.payload.contact
     } catch (e) {
