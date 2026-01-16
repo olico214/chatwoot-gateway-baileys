@@ -54,8 +54,9 @@ const searchContact = async (phone) => {
 }
 
 // 2. Crear Contacto
-const createContact = async (phone, name) => {
+const createContact = async (phone) => {
     const config = getConfig()
+    console.log("get config: ", config)
     try {
         const res = await fetch(`${config.url}/api/v1/accounts/${config.idAcount}/contacts`, {
             method: 'POST',
@@ -65,7 +66,7 @@ const createContact = async (phone, name) => {
             },
             body: JSON.stringify({
                 inbox_id: config.imboxID,
-                name: name || phone,
+                name: phone,
                 phone_number: `+${phone}`
             })
         })
@@ -212,7 +213,7 @@ export const chatwootLayer = async (phone, msg, name = '', localPath = "", mimeT
         conversationId = await getConversation(contact.id)
     } else {
         console.log(`👤 Creando contacto nuevo: ${cleanPhone}`)
-        contact = await createContact(cleanPhone, name)
+        contact = await createContact(cleanPhone)
     }
 
     if (!contact || !contact.id) {
