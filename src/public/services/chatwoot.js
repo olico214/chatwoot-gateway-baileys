@@ -56,7 +56,6 @@ const searchContact = async (phone) => {
 // 2. Crear Contacto
 const createContact = async (phone) => {
     const config = getConfig()
-    console.log("get config: ", config)
     try {
         const res = await fetch(`${config.url}/api/v1/accounts/${config.idAcount}/contacts`, {
             method: 'POST',
