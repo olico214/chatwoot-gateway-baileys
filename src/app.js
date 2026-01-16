@@ -12,6 +12,30 @@ const __dirname = dirname(__filename)
 
 const PORT = process.env.PORT ?? 3007
 
+
+function resolveUserJid(msg) {
+  console.log(msg)
+  const candidates = [
+    msg?.key?.senderPn,      // ✅ Preferido (LID mappings)
+    msg?.key?.senderJid,     // ✅ Variantes
+    msg?.key?.participant,   // ✅ Prioridad si viene de un grupo
+    msg?.key?.remoteJid      // ✅ Chat privado estándar
+  ].filter(Boolean);
+
+  for (const j of candidates) {
+    let norm = j;
+    if (norm.includes(':')) {
+      norm = norm.split(':')[0] + '@s.whatsapp.net';
+    }
+    if (norm.endsWith('@s.whatsapp.net')) {
+      return norm;
+    }
+  }
+  return null;
+}
+
+
+
 // --- HELPER PARA DETECTAR TIPO DE ARCHIVO ---
 const getMimeType = (file) => {
   // mime.lookup puede fallar si no detecta bien, ponemos un fallback
@@ -21,7 +45,8 @@ const getMimeType = (file) => {
 // 1. FLUJO BIENVENIDA
 const flowBienvenida = addKeyword(EVENTS.WELCOME)
   .addAction({ capture: false }, async (ctx, { }) => {
-    const phone = ctx.from
+
+    const phone = resolveUserJid(ctx)
     const message = ctx.body
     const name = ctx.pushName
     console.log(phone, message, name)
@@ -32,7 +57,7 @@ const flowBienvenida = addKeyword(EVENTS.WELCOME)
 const flowAudio = addKeyword(EVENTS.VOICE_NOTE)
   .addAction({ capture: false }, async (ctx, { provider }) => {
     const localPath = await provider.saveFile(ctx, { path: './src/assets' })
-    const phone = ctx.from
+    const phone = resolveUserJid(ctx)
     const name = ctx.pushName
     const ext = getMimeType(localPath)
     // Nota: chatwootLayer ya maneja la lógica, solo pasamos el path
@@ -43,7 +68,7 @@ const flowAudio = addKeyword(EVENTS.VOICE_NOTE)
 const flowMedia = addKeyword(EVENTS.MEDIA)
   .addAction({ capture: false }, async (ctx, { provider }) => {
     const localPath = await provider.saveFile(ctx, { path: './src/assets' })
-    const phone = ctx.from
+    const phone = resolveUserJid(ctx)
     const mensaje = ctx?.message?.imageMessage?.caption ?? ""
     const name = ctx.pushName
     const ext = getMimeType(localPath)
@@ -55,7 +80,7 @@ const flowDocument = addKeyword(EVENTS.DOCUMENT)
   .addAction({ capture: false }, async (ctx, { provider }) => {
     const mensaje = ctx?.message?.imageMessage?.caption ?? ""
     const localPath = await provider.saveFile(ctx, { path: './src/assets' })
-    const phone = ctx.from
+    const phone = resolveUserJid(ctx)
     const name = ctx.pushName
     const ext = getMimeType(localPath)
     await chatwootLayer(phone, mensaje, name, localPath, ext)
@@ -66,7 +91,7 @@ const flowLocation = addKeyword(EVENTS.LOCATION) // <--- Corregido a EVENTS.LOCA
   .addAction({ capture: false }, async (ctx, { }) => {
     const lat = ctx.message?.locationMessage?.degreesLatitude;
     const long = ctx.message?.locationMessage?.degreesLongitude;
-    const phone = ctx.from
+    const phone = resolveUserJid(ctx)
     const name = ctx.pushName
 
     if (lat && long) {
