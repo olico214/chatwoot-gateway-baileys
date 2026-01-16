@@ -14,7 +14,6 @@ const PORT = process.env.PORT ?? 3007
 
 
 function resolveUserJid(msg) {
-  console.log(msg)
   const candidates = [
     msg?.key?.senderPn,      // ✅ Preferido (LID mappings)
     msg?.key?.senderJid,     // ✅ Variantes
@@ -28,7 +27,7 @@ function resolveUserJid(msg) {
       norm = norm.split(':')[0] + '@s.whatsapp.net';
     }
     if (norm.endsWith('@s.whatsapp.net')) {
-      return norm;
+      return norm.split("@")[0]; // Retornamos solo el número
     }
   }
   return null;
